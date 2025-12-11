@@ -624,7 +624,14 @@ This setup uses three Virtual Machines in **VirtualBox**:
     - Set `MME_IP` to the IP address of the **Host-only Adapter** interface of your **AGW** Virtual Machine.
     - Set `SRS_ENB_IP` and `SRS_UE_IP` to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
 
-5. Build the Docker image:
+5. Pull the Docker image:
+
+    ~~~bash
+    docker pull lucasdamascenos/srsran:latest
+    docker tag lucasdamascenos/srsran:latest docker_srslte
+    ~~~
+
+6. Build the Docker image (optional):
 
     ~~~bash
     cd srslte/
@@ -632,7 +639,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker build --no-cache --force-rm -t docker_srslte .
     ~~~
 
-6. Deploy the eNB:
+7. Deploy the eNB:
 
     ~~~bash
     cd ~/docker_magma
@@ -640,7 +647,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker compose -f srsenb_zmq.yaml up -d && docker container attach srsenb_zmq
     ~~~
 
-7. Deploy the UE:
+8. Deploy the UE:
 
     ~~~bash
     cd ~/docker_magma
@@ -648,9 +655,9 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker compose -f srsue_zmq.yaml up -d && docker container attach srsue_zmq
     ~~~
 
-8. Test Traffic:
+9. Test Traffic:
    
-    If you want to manually utilize the interface, just bind your TCP/IP socket to `uesimtunX` interface.
+    If you want to manually utilize the interface, just bind your TCP/IP socket to `tun_srsue` interface.
 
     ~~~bash
     ping -I tun_srsue google.com
@@ -718,7 +725,14 @@ This setup uses three Virtual Machines in **VirtualBox**:
     - Set `AMF_IP` to the IP address of the **Host-only Adapter** interface of your **AGW** Virtual Machine.
     - Set `NR_GNB_IP` and `NR_UE_IP` to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
 
-5. Build the Docker image:
+5. Pull the Docker image:
+
+    ~~~bash
+    docker pull lucasdamascenos/ueransim:latest
+    docker tag lucasdamascenos/ueransim:latest docker_ueransim
+    ~~~
+
+6. Build the Docker image (optional):
 
     ~~~bash
     cd ueransim/
@@ -726,7 +740,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker build --no-cache --force-rm -t docker_ueransim .
     ~~~
 
-6. Deploy the gNB:
+7. Deploy the gNB:
 
     ~~~bash
     cd ~/docker_magma
@@ -734,7 +748,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker compose -f nr-gnb.yaml up -d && docker container attach nr_gnb
     ~~~
 
-7. Deploy the UE:
+8. Deploy the UE:
 
     ~~~bash
     cd ~/docker_magma
@@ -742,7 +756,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     docker compose -f nr-ue.yaml up -d && docker container attach nr_ue
     ~~~
 
-8. Test Traffic:
+9. Test Traffic:
    
     If you want to manually utilize the interface, just bind your TCP/IP socket to `uesimtunX` interface.
 
