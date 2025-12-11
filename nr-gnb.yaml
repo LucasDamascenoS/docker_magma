@@ -20,10 +20,3 @@ services:
       - NET_ADMIN
     privileged: true
     network_mode: host
-#     networks:
-#       default:
-#         ipv4_address: ${NR_GNB_IP}
-# networks:
-#   default:
-#     external: true
-#     name: docker_open5gs_default
