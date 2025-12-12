@@ -219,7 +219,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
 12. Utility Commands:
 
-    - ℹ️ Containers Stop/Start Sequence After Starting the Orchestrator Virtual Machine:
+    - Containers Stop/Start Sequence After Starting the Orchestrator Virtual Machine:
         
         ~~~bash
         sudo su -
@@ -1183,6 +1183,8 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
         sudo ./packetrusher multi-ue -n 10
         ~~~
+
+        > ℹ️ IMSI number is incremented by one for each of the UEs (starting from the IMSI specified in the `config.yml` file).
     
     - To start 10 UEs **with** a TUN interface, use the command:
 
