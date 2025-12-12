@@ -449,7 +449,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     - Restart the containers to get the last configurations:
 
         ~~~bash
-        docker-compose up -d --force-recreate
+        docker-compose restart
         ~~~
 
 15. Upgrade Version:
@@ -507,7 +507,40 @@ This setup uses three Virtual Machines in **VirtualBox**:
         docker-compose down; sleep 30; docker-compose up -d; sleep 120; docker-compose stop; sleep 30; docker-compose up -d;
         ~~~
 
-17. Optional Tools:
+17. Utility Commands:
+
+    - List IMSIs provisioned on the AGW:
+        
+        ~~~bash
+        docker exec -ti magmad subscriber_cli.py list
+        ~~~
+    
+    - Get IMSI configuration:
+
+        ~~~bash
+        docker exec -ti magmad subscriber_cli.py get IMSI001010000000001
+        ~~~
+
+    
+    - List sessions on the AGW:
+        
+        ~~~bash
+        docker exec -ti magmad mobility_cli.py get_subscriber_table
+        ~~~
+    
+    - Get AGW configuration:
+
+        ~~~bash
+        more /var/opt/magma/configs/gateway.mconfig
+        ~~~
+    
+    - Get MME/AMF configuration:
+
+        ~~~bash
+        more /var/opt/magma/tmp/mme.conf
+        ~~~
+
+18. Optional Tools:
 
     - 🛠️ **Monitor:** tmux windows to perform sensitive tasks.
 
