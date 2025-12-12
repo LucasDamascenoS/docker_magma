@@ -5,6 +5,7 @@ This repository contains Docker files for deploying an RF-simulated 4G/5G networ
 - **Core Network (4G/5G) - Magma:** https://github.com/magma/magma
 - **srsRAN_4G (4G eNB + 4G UE + 5G UE):** https://github.com/srsran/srsRAN_4G
 - **UERANSIM (5G gNB + 5G UE):** https://github.com/aligungr/UERANSIM
+- **PacketRusher (5G gNB + 5G UE):** https://github.com/HewlettPackard/PacketRusher
 - **Docker base files:** https://github.com/herlesupreeth/docker_open5gs
 
 ## Table of Contents
@@ -16,6 +17,7 @@ This repository contains Docker files for deploying an RF-simulated 4G/5G networ
     - [Docker srsRAN Setup](#docker-srsran-setup)
     - [Docker UERANSIM Setup](#docker-ueransim-setup)
     - [Source UERANSIM Setup](#source-ueransim-setup)
+    - [Source PacketRusher Setup](#source-packetrusher-setup)
 - [Troubleshooting](#troubleshooting)
 
 ## Tested Setup
@@ -781,11 +783,6 @@ This setup uses three Virtual Machines in **VirtualBox**:
 2. Install OS Dependencies:
 
     ~~~bash
-    sudo apt update
-    sudo apt upgrade
-    ~~~
-
-    ~~~bash
     sudo apt install make
     sudo apt install gcc
     sudo apt install g++
@@ -849,9 +846,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
 6. Edit the `~/UERANSIM/config/magma-ue.yaml` file:
     - Set `supi` to the first subscriber IMSI on your DB.
     - Set `mcc` to `'001'` and `mnc` to `'01'`.
-    - Remove the `protectionScheme`, `homeNetworkPublicKey`, `homeNetworkPublicKeyId` and `routingIndicator` fields.
     - Set `key` and `op` to the corresponding values that you configured for the subscriber.
-    - Remove the `tunNetmask` field.
     - Set the `gnbSearchList` to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
     - Add `sd: 0xffffff` under `sessions` section.
     - Add `sd: 0xffffff` under `configured-nssai` section.
@@ -970,6 +965,211 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ping -I uesimtun0 google.com
     ~~~
 
+### Source PacketRusher Setup
+
+> ℹ️ Please refer to the [PacketRusher](https://github.com/HewlettPackard/PacketRusher) repository for more information.
+
+1. After complete the installation, update and upgrade the Virtual Machine:
+
+    ~~~bash
+    sudo apt update && sudo apt upgrade -y
+    ~~~
+
+2. Install OS Dependencies:
+
+    - Install the Linux kernel headers to build the gtp5g kernel module:
+
+        ~~~bash
+        sudo apt install build-essential linux-headers-generic make git wget tar linux-modules-extra-$(uname -r)
+        ~~~
+    
+    - Install Go:
+        ~~~bash
+        # This command will remove your existing local Go installation if you have one
+        wget https://go.dev/dl/go1.24.1.linux-amd64.tar.gz && sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.24.1.linux-amd64.tar.gz
+
+        # Add go binary to the executable PATH variable
+        export PATH=$PATH:/usr/local/go/bin
+
+        # Apply PATH changes immediately
+        source $HOME/.profile
+        ~~~
+
+3. Clone the PacketRusher Repository:
+
+    ~~~bash
+    git clone https://github.com/HewlettPackard/PacketRusher
+
+    cd PacketRusher && echo "export PACKETRUSHER=$PWD" >> $HOME/.profile && source $HOME/.profile
+    ~~~
+
+4. Build the free5GC gtp5g kernel module:
+
+    ~~~bash
+    cd $PACKETRUSHER/lib/gtp5g
+
+    make clean && make -j && sudo make install
+    ~~~
+
+5. Build the PacketRusher CLI:
+
+    ~~~bash
+    cd $PACKETRUSHER
+
+    go mod download
+
+    go build cmd/packetrusher.go
+
+    ./packetrusher --help
+    ~~~
+
+6. Edit the `~/PacketRusher/config/config.yml` file:
+
+    - Set `ip` under `controlif` section to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
+    - Set `ip` under `dataif` section to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
+    - Set `mcc` to `'001'` and `mnc` to `'01'` under `plmnlist` section.
+    - Remove the `sd` field under `slicesupportlist` section.
+    - Set `mcc` to `'001'` and `mnc` to `'01'` under `hplmn` section.
+    - Set `msin` to the first subscriber MSISDN on your DB.
+    - Set `key` and `opc` to the corresponding values that you configured for the subscriber.
+    - Remove the `sd` field under `snssai` section.
+    - Set `ip` under `amfif` section to the IP address of the **Host-only Adapter** interface of your **AGW** Virtual Machine.
+
+    Your `~/PacketRusher/config/config.yml` file should look like this:
+
+    ~~~yml
+    # PacketRusher Simulated gNodeB Configuration
+    gnodeb:
+      # IP Address on the N2 Interface (e.g. used between the gNodeB and the AMF)
+      controlif:
+        ip: "gNB_IP"
+        port: 9487
+
+      # IP Address on the N3 Interface (e.g. used between the gNodeB and the UPF)
+      dataif:
+        ip: "gNB_IP"
+        port: 2152
+
+      # gNodeB's Identity
+      plmnlist:
+        mcc: "001"
+        mnc: "01"
+        tac: "000001"
+        gnbid: "000008"
+
+      # gNodeB's Supported Slices
+      slicesupportlist:
+        sst: "01"
+
+    # PacketRusher Simulated UE Configuration
+    ue:
+      # UE's Identity, frequently called IMSI in 4G and before
+      # IMSI format is "<mcc><mnc><msin>"
+      # In 5G, the SUPI of the UE will be "imsi-<mcc><mnc><msin>""
+      # With default configuration, SUPI will be imsi-208930000000120
+      hplmn:
+        mcc: "001"
+        mnc: "01"
+      msin: "0000000001"
+
+      # In 5G, the UE's identity to the AMF as a SUCI (Subscription Concealed Identifier)
+      #
+      # SUCI format is suci-<supi_type>-<MCC>-<MNC>-<routing_indicator>-<protection_scheme>-<public_key_id>-<scheme_output>
+      # With default configuration, SUCI sent to AMF will be suci-0-999-70-0000-0-0-0000000120
+      #
+      # SUCI Routing Indicator allows the AMF to route the UE to the correct UDM
+      routingindicator: "0000"
+      #
+      # SUCI Protection Scheme: 0 for Null-scheme, 1 for Profile A and 2 for Profile B
+      protectionScheme: 0
+      #
+      # Home Network Public Key
+      # Ignored with default Null-Scheme configuration
+      homeNetworkPublicKey: "5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650"
+      #
+      # Home Network Public Key ID
+      # Ignored ith default Null-Scheme configuration
+      homeNetworkPublicKeyID: 1
+
+      # UE's SIM credentials
+      key: "00112233445566778899aabbccddeeff"
+      opc: "63BFA50EE6523365FF14C1F45F88737D"
+      amf: "8000"
+      sqn: "00000000"
+
+      # UE will request to establish a data session in this DNN (APN)
+      dnn: "internet"
+      # in the following slice
+      snssai:
+        sst: "01"
+
+      # The UE's security capabilities that will be advertised to the AMF
+      integrity:
+        nia0: false
+        nia1: false
+        nia2: true
+        nia3: false
+      ciphering:
+        # For debugging Wireshark traces, NEA0 is recommended, as the NAS messages
+        # will be sent in cleartext, and be decipherable in Wireshark.
+        nea0: true
+        nea1: false
+        nea2: true
+        nea3: false
+
+    # List of AMF that PacketRusher will try to connect to
+    amfif:
+      - ip: "AMF_IP"
+        port: 38412
+    logs:
+      level: 4
+    ~~~
+
+7. Start only the gNB:
+
+    ~~~bash
+    cd $PACKETRUSHER
+
+    ./packetrusher gnb
+    ~~~
+
+8. Start the gNB + UE:
+
+    - To start 1 UE, use the command:
+
+        ~~~bash
+        cd $PACKETRUSHER
+
+        sudo ./packetrusher ue
+        ~~~
+    
+    - To start 10 UEs **without** a TUN interface, use the command:
+
+        ~~~bash
+        cd $PACKETRUSHER
+
+        sudo ./packetrusher multi-ue -n 10
+        ~~~
+    
+    - To start 10 UEs **with** a TUN interface, use the command:
+
+        ~~~bash
+        cd $PACKETRUSHER
+
+        sudo ./packetrusher multi-ue -n 10 --tunnel --dedicatedGnb
+        ~~~
+
+        - ⚠️ To use TUN interfaces with multiple UEs, a dedicated gNB is required for each UE. PacketRusher automatically creates a second gNB with the same configuration as the first one, assigning it the next available IP. For example, if the first gNB uses IP *192.168.56.120*, the second gNB will use *192.168.56.121*.
+        - ⚠️ Make sure to add the necessary IP addresses to your **Host-only Adapter** interface before running the command (e.g., `sudo ip addr add dev enp0s8 192.168.56.121/24`).
+
+9. Test Traffic:
+   
+    If you want to manually utilize the interface, just bind your TCP/IP socket to `val00000000xx` interface.
+
+    ~~~bash
+    ping -I val0000000001 google.com
+    ~~~
+
 ## Troubleshooting
 
 1. **Not able to create more than 1024 TUN interfaces with UERANSIM:**
@@ -1024,7 +1224,35 @@ This setup uses three Virtual Machines in **VirtualBox**:
             sudo ovs-ofctl -O OpenFlow13 dump-flows gtp_br0 table=13
             ~~~
         
-        4. If everything appears correct, then this is a known bug in AGW Setup using the VirtualBox, where session packets are dropped. To work around this (for **test/development environments only**), run the commands below and restart the gNB and UE session:
+        4. If everything appears correct, then this is a known bug in AGW Setup using the VirtualBox, where session packets are dropped. To work around this (for **test/development environments only**), run the commands below:
+
+            ~~~bash
+            sudo ovs-ofctl del-flows gtp_br0 "table=13,priority=0"
+
+            sudo ovs-ofctl add-flow gtp_br0 "table=13,priority=0,actions=resubmit(,20)"
+            ~~~
+
+3. **Unable to ping the internet with PacketRusher:**
+
+    - After a successful gNB and UE attach to the AGW, a PDU session is established and a TUN interface is created with an assigned IP address.
+
+    - When testing connectivity using `ping -I val0000000001 google.com`, no responses are received.
+
+    - To resolve this issue, follow the steps below:
+        
+        1. Verify that there are no errors in the `ovs-vsctl show` output.
+        
+        2. Check whether the session entries exist in the flow tables:
+
+            ~~~bash
+            sudo ovs-ofctl -O OpenFlow13 dump-flows gtp_br0 table=0
+
+            sudo ovs-ofctl -O OpenFlow13 dump-flows gtp_br0 table=12
+
+            sudo ovs-ofctl -O OpenFlow13 dump-flows gtp_br0 table=13
+            ~~~
+        
+        3. If everything appears correct, then this is a known bug in AGW Setup using the VirtualBox, where session packets are dropped. To work around this (for **test/development environments only**), run the commands below:
 
             ~~~bash
             sudo ovs-ofctl del-flows gtp_br0 "table=13,priority=0"
