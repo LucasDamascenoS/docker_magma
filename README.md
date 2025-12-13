@@ -48,6 +48,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     - RF Simulated Setups:
         - srsRAN_4G (eNB + UE) simulation over ZMQ.
         - UERANSIM (gNB + UE) simulator.
+        - PacketRusher (gNB + UE) simulator.
 
 ## Orchestrator Setup
 
