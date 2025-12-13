@@ -97,28 +97,51 @@ This setup uses three Virtual Machines in **VirtualBox**:
     git checkout v1.9
     ~~~
 
-4. Build the Orchestrator containers:
+4. Fix the Fluentd build Dockerfile:
+
+    - Open the Dockerfile:
+
+        ~~~bash
+        vi ~/magma/orc8r/cloud/docker/fluentd/Dockerfile
+        ~~~
+
+    - Your Dockerfile should look like this:
+        
+        ~~~dockerfile
+        FROM fluent/fluentd:v1.14.6-debian-1.0
+        USER root
+        RUN gem install \
+            excon:1.2.5 \
+            multi_json:1.15.0 \
+            elasticsearch:7.13.0 \
+            fluent-plugin-elasticsearch:5.2.1 \
+            fluent-plugin-multi-format-parser:1.0.0 \
+            --no-document
+        USER fluent
+        ~~~
+
+5. Build the Orchestrator containers:
 
     ~~~bash
     cd ~/magma/orc8r/cloud/docker
     ./build.py --all
     ~~~
 
-5. Build the NMS containers:
+6. Build the NMS containers:
 
     ~~~bash
     cd ~/magma/nms
     COMPOSE_PROJECT_NAME=magmalte docker-compose build magmalte
     ~~~
 
-6. Run the Orchestrator:
+7. Run the Orchestrator:
 
     ~~~bash
     cd ~/magma/orc8r/cloud/docker
     ./run.py --metrics
     ~~~
 
-7. Run the NMS GUI:
+8. Run the NMS GUI:
 
     ~~~bash
     cd ~/magma/nms
@@ -147,21 +170,21 @@ This setup uses three Virtual Machines in **VirtualBox**:
         docker-compose ps
         ~~~
 
-8. Provision the Demo data:
+9. Provision the Demo data:
 
     ~~~bash
     cd ~/magma/nms
     ./scripts/dev_setup.sh
     ~~~
 
-9. Verify that the certificates have been generated:
+10. Verify that the certificates have been generated:
 
     ~~~bash
     ls -ltr ~/magma/.cache/test_certs
     more ~/magma/.cache/test_certs/rootCA.pem
     ~~~
 
-10. Connecting to the Orchestrator and Setting Up a Network:
+11. Connecting to the Orchestrator and Setting Up a Network:
 
     - Modify the hosts file in the host machine:
 
@@ -211,13 +234,13 @@ This setup uses three Virtual Machines in **VirtualBox**:
                 | Data Plan | default |
                 | Active APNs | internet |
 
-11. Enable 5G:
+12. Enable 5G:
 
     - Navigate to the **Network** tab.
     - Under the **EPC** section, click the `Edit` button.
     - Switch on `Enable 5G Features` and save the configuration.
 
-12. Utility Commands:
+13. Utility Commands:
 
     - Containers Stop/Start Sequence After Starting the Orchestrator Virtual Machine:
         
@@ -303,8 +326,6 @@ This setup uses three Virtual Machines in **VirtualBox**:
 4. Install necessary packages:
 
     ~~~bash
-    sudo su -
-
     apt update && apt install python3-pip tshark tmux -y
     ~~~
 
@@ -473,7 +494,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     - Pull the new image and start the containers correctly:
 
         ~~~bash
-        docker-compose pull; sleep 120; docker-compose down; sleep 30; docker-compose up -d; sleep 120; docker-compose stop; sleep 30; docker-compose up -d;
+        docker-compose pull; sleep 120; docker-compose down; sleep 30; docker-compose up -d; sleep 60; docker-compose stop; sleep 30; docker-compose up -d;
         ~~~
 
     - Check if the containers are running with the new version:
@@ -504,7 +525,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
         ~~~bash
         cd /var/opt/magma/docker
 
-        docker-compose down; sleep 30; docker-compose up -d; sleep 120; docker-compose stop; sleep 30; docker-compose up -d;
+        docker-compose down; sleep 30; docker-compose up -d; sleep 60; docker-compose stop; sleep 30; docker-compose up -d;
         ~~~
 
 17. Utility Commands:
@@ -651,7 +672,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ~~~bash
     git clone https://github.com/LucasDamascenoS/docker_magma.git
 
-    cd docker_magma
+    cd ~/docker_magma
     ~~~
 
 4. Edit the `.env` file:
@@ -752,7 +773,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ~~~bash
     git clone https://github.com/LucasDamascenoS/docker_magma.git
 
-    cd docker_magma
+    cd ~/docker_magma
     ~~~
 
 4. Edit the `.env` file:
@@ -816,11 +837,11 @@ This setup uses three Virtual Machines in **VirtualBox**:
 2. Install OS Dependencies:
 
     ~~~bash
-    sudo apt install make
-    sudo apt install gcc
-    sudo apt install g++
-    sudo apt install libsctp-dev lksctp-tools
-    sudo apt install iproute2
+    sudo apt install -y make
+    sudo apt install -y gcc
+    sudo apt install -y g++
+    sudo apt install -y libsctp-dev lksctp-tools
+    sudo apt install -y iproute2
     sudo snap install cmake --classic
     ~~~
 
@@ -865,7 +886,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     # List of AMF address information
     amfConfigs:
     - address: <AMF_IP>
-        port: 38412
+      port: 38412
 
     # List of supported S-NSSAIs by this gNB
     slices:
