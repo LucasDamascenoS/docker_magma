@@ -17,11 +17,11 @@ This repository contains Docker files for deploying an RF-simulated 4G/5G networ
     - [Docker srsRAN Setup](#docker-srsran-setup)
     - [Docker UERANSIM Setup](#docker-ueransim-setup)
     - [Source UERANSIM Setup](#source-ueransim-setup)
-        - [Automated](#automated)
-        - [Manual](#manual)
+        - [Automated UERANSIM](#automated-ueransim)
+        - [Manual UERANSIM](#manual-ueransim)
     - [Source PacketRusher Setup](#source-packetrusher-setup)
-        - [Automated](#automated)
-        - [Manual](#manual)
+        - [Automated PacketRusher](#automated-packetrusher)
+        - [Manual PacketRusher](#manual-packetrusher)
 
 - [Troubleshooting](#troubleshooting)
 
@@ -834,7 +834,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
 > ℹ️ Please refer to the [UERANSIM](https://github.com/aligungr/UERANSIM) repository for more information.
 
-#### Automated
+#### Automated UERANSIM
 
 1. After complete the installation, update and upgrade the Virtual Machine:
 
@@ -892,7 +892,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ping -I uesimtun0 google.com
     ~~~
 
-#### Manual
+#### Manual UERANSIM
 
 1. After complete the installation, update and upgrade the Virtual Machine:
 
@@ -1089,7 +1089,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
 > ℹ️ Please refer to the [PacketRusher](https://github.com/HewlettPackard/PacketRusher) repository for more information.
 
-#### Automated
+#### Automated PacketRusher
 
 1. After complete the installation, update and upgrade the Virtual Machine:
 
@@ -1158,7 +1158,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ping -I val0000000001 google.com
     ~~~
 
-#### Manual
+#### Manual PacketRusher
 
 1. After complete the installation, update and upgrade the Virtual Machine:
 
