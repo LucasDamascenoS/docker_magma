@@ -17,7 +17,12 @@ This repository contains Docker files for deploying an RF-simulated 4G/5G networ
     - [Docker srsRAN Setup](#docker-srsran-setup)
     - [Docker UERANSIM Setup](#docker-ueransim-setup)
     - [Source UERANSIM Setup](#source-ueransim-setup)
+        - [Automated](#automated)
+        - [Manual](#manual)
     - [Source PacketRusher Setup](#source-packetrusher-setup)
+        - [Automated](#automated)
+        - [Manual](#manual)
+
 - [Troubleshooting](#troubleshooting)
 
 ## Tested Setup
@@ -829,6 +834,66 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
 > ℹ️ Please refer to the [UERANSIM](https://github.com/aligungr/UERANSIM) repository for more information.
 
+#### Automated
+
+1. After complete the installation, update and upgrade the Virtual Machine:
+
+    ~~~bash
+    sudo apt update && sudo apt upgrade -y
+    ~~~
+
+2. Clone the repository:
+
+    ~~~bash
+    git clone https://github.com/LucasDamascenoS/docker_magma.git
+
+    cd ~/docker_magma
+    ~~~
+
+3. Run the script:
+
+    ~~~bash
+    ./setup_ueransim.sh
+    ~~~
+
+4. Start the gNB:
+
+    ~~~bash
+    cd ~/docker_magma/UERANSIM/build
+
+    ./nr-gnb -c ../config/magma-gnb.yaml
+    ~~~
+
+5. Start the UE:
+
+    - To start 1 UE, use the command:
+   
+        ~~~bash
+        cd ~/docker_magma/UERANSIM/build
+
+        sudo ./nr-ue -c ../config/magma-ue.yaml
+        ~~~
+
+    - To start 10 UEs, use the command:
+
+        ~~~bash
+        cd ~/docker_magma/UERANSIM/build
+
+        sudo ./nr-ue -c ../config/magma-ue.yaml -n 10
+        ~~~
+
+        > ℹ️ IMSI number is incremented by one for each of the UEs (starting from the IMSI specified in the `magma-ue.yaml` file).
+
+6. Test Traffic:
+   
+    If you want to manually utilize the interface, just bind your TCP/IP socket to `uesimtunX` interface.
+
+    ~~~bash
+    ping -I uesimtun0 google.com
+    ~~~
+
+#### Manual
+
 1. After complete the installation, update and upgrade the Virtual Machine:
 
     ~~~bash
@@ -1023,6 +1088,77 @@ This setup uses three Virtual Machines in **VirtualBox**:
 ### Source PacketRusher Setup
 
 > ℹ️ Please refer to the [PacketRusher](https://github.com/HewlettPackard/PacketRusher) repository for more information.
+
+#### Automated
+
+1. After complete the installation, update and upgrade the Virtual Machine:
+
+    ~~~bash
+    sudo apt update && sudo apt upgrade -y
+    ~~~
+
+2. Clone the repository:
+
+    ~~~bash
+    git clone https://github.com/LucasDamascenoS/docker_magma.git
+
+    cd ~/docker_magma
+    ~~~
+
+3. Run the script:
+
+    ~~~bash
+    ./setup_packetrusher.sh
+    ~~~
+
+4. Start only the gNB:
+
+    ~~~bash
+    cd ~/docker_magma/PacketRusher
+
+    ./packetrusher gnb
+    ~~~
+
+5. Start the gNB + UE:
+
+    - To start 1 UE, use the command:
+
+        ~~~bash
+        cd ~/docker_magma/PacketRusher
+
+        sudo ./packetrusher ue
+        ~~~
+    
+    - To start 10 UEs **without** a TUN interface, use the command:
+
+        ~~~bash
+        cd ~/docker_magma/PacketRusher
+
+        sudo ./packetrusher multi-ue -n 10
+        ~~~
+
+        > ℹ️ IMSI number is incremented by one for each of the UEs (starting from the IMSI specified in the `config.yml` file).
+    
+    - To start 10 UEs **with** a TUN interface, use the command:
+
+        ~~~bash
+        cd ~/docker_magma/PacketRusher
+
+        sudo ./packetrusher multi-ue -n 10 --tunnel --dedicatedGnb
+        ~~~
+
+        - ⚠️ To use TUN interfaces with multiple UEs, a dedicated gNB is required for each UE. PacketRusher automatically creates a second gNB with the same configuration as the first one, assigning it the next available IP. For example, if the first gNB uses IP *192.168.56.120*, the second gNB will use *192.168.56.121*.
+        - ⚠️ Make sure to add the necessary IP addresses to your **Host-only Adapter** interface before running the command (e.g., `sudo ip addr add dev enp0s8 192.168.56.121/24`).
+
+6. Test Traffic:
+   
+    If you want to manually utilize the interface, just bind your TCP/IP socket to `val00000000xx` interface.
+
+    ~~~bash
+    ping -I val0000000001 google.com
+    ~~~
+
+#### Manual
 
 1. After complete the installation, update and upgrade the Virtual Machine:
 
