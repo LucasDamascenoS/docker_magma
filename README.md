@@ -850,13 +850,17 @@ This setup uses three Virtual Machines in **VirtualBox**:
     cd ~/docker_magma
     ~~~
 
-3. Run the script:
+3. Edit the `.env` file:
+    - Set `AMF_IP` to the IP address of the **Host-only Adapter** interface of your **AGW** Virtual Machine.
+    - Set `NR_GNB_IP` and `NR_UE_IP` to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
+
+4. Run the script:
 
     ~~~bash
     ./setup_ueransim.sh
     ~~~
 
-4. Start the gNB:
+5. Start the gNB:
 
     ~~~bash
     cd ~/docker_magma/UERANSIM/build
@@ -864,7 +868,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ./nr-gnb -c ../config/magma-gnb.yaml
     ~~~
 
-5. Start the UE:
+6. Start the UE:
 
     - To start 1 UE, use the command:
    
@@ -884,7 +888,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
 
         > ℹ️ IMSI number is incremented by one for each of the UEs (starting from the IMSI specified in the `magma-ue.yaml` file).
 
-6. Test Traffic:
+7. Test Traffic:
    
     If you want to manually utilize the interface, just bind your TCP/IP socket to `uesimtunX` interface.
 
@@ -1105,13 +1109,17 @@ This setup uses three Virtual Machines in **VirtualBox**:
     cd ~/docker_magma
     ~~~
 
-3. Run the script:
+3. Edit the `.env` file:
+    - Set `AMF_IP` to the IP address of the **Host-only Adapter** interface of your **AGW** Virtual Machine.
+    - Set `NR_GNB_IP` and `NR_UE_IP` to the IP address of the **Host-only Adapter** interface of your **Simulator** Virtual Machine.
+
+4. Run the script:
 
     ~~~bash
     ./setup_packetrusher.sh
     ~~~
 
-4. Start only the gNB:
+5. Start only the gNB:
 
     ~~~bash
     cd ~/docker_magma/PacketRusher
@@ -1119,7 +1127,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
     ./packetrusher gnb
     ~~~
 
-5. Start the gNB + UE:
+6. Start the gNB + UE:
 
     - To start 1 UE, use the command:
 
@@ -1150,7 +1158,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
         - ⚠️ To use TUN interfaces with multiple UEs, a dedicated gNB is required for each UE. PacketRusher automatically creates a second gNB with the same configuration as the first one, assigning it the next available IP. For example, if the first gNB uses IP *192.168.56.120*, the second gNB will use *192.168.56.121*.
         - ⚠️ Make sure to add the necessary IP addresses to your **Host-only Adapter** interface before running the command (e.g., `sudo ip addr add dev enp0s8 192.168.56.121/24`).
 
-6. Test Traffic:
+7. Test Traffic:
    
     If you want to manually utilize the interface, just bind your TCP/IP socket to `val00000000xx` interface.
 
