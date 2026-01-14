@@ -206,7 +206,7 @@ This setup uses three Virtual Machines in **VirtualBox**:
         - Open a browser and navigate to:
 
             ~~~
-            https://magma-test.magma.tes
+            https://magma-test.magma.test
 
             username: admin@magma.test
             password: password1234
